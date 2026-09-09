@@ -1,2 +1,3 @@
-Descripción del Dominio
+*Descripción del Dominio*
+
 CanchaGO es una plataforma web para la comercialización gestión de turnos y control de acceso en canchas sisnteticas con de alta demanda, el sistema aborda problemáticas frecuentes como la mala reserva de horarios por falta de sincronización en tiempo real, la inasistencia sin previo aviso que genera pérdidas económicas para los establecimientos, asi como tambien la mala gestión para el cobro de anticipos y la lentitud en el control de acceso en horas pico.
