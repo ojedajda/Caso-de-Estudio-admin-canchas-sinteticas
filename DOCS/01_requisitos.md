@@ -6,7 +6,7 @@ Administrador: Organiza las canchas y sus precios según el horario, organiza la
 
 Recepción: Registra el ingreso de los equipos a la cancha por un ID unico, valida el pago del saldo pendiente al momento de jugar y activa el tiempo de la cancha reservada.
 
-### 2. Matriz de Transformación: Problemas, Necesidades y Requisitos Funcionales
+### *2. Matriz de Transformación: Problemas, Necesidades y Requisitos Funcionales*
 
 | # | Problema Identificado | Necesidad de Software | Requisito Funcional |
 | :-: | :--- | :--- | :--- |
