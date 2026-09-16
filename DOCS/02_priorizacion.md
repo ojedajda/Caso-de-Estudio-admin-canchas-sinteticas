@@ -14,3 +14,11 @@
 | **#10** | HU10 - Historial de Reservas y Repetición de Turno Frecuente | **Could Have** | Impacto UX | Mejora la fidelización al permitir reservar nuevamente en el horario habitual de reserva del usuario | Complejidad Baja (Consultas filtradas por usuario en base de datos). |
 | **#11** | HU11 - Calificación y Reseña del Servicio de la Cancha | **Won't Have** | Impacto UX | Recoge retroalimentación pública sobre la calidad y la atención. | Complejidad Baja (Formulario de estrellas y texto). |
 | **#12** | HU12 - Bloqueo de Emergencia por Mantenimiento o Imprevistos | **Should Have** | Impacto Operativo | Inhabilita la cancha por mal tiempo o reparaciones urgentes evitando falsas reservas. | Complejidad Baja (Cambio de estado en agenda de disponibilidad). |
+
+
+### *2. Alcance del Producto Mínimo Viable (MVP)*
+
+El Producto Mínimo Viable (MVP) para el lanzamiento del sistema se compondrá únicamente de las historias clasificadas como **Must Have** (`#1`, `#2`, `#4`, `#6`, `#7` y `#8`).
+
+- **Justificación de Selección:** Se cubren las tres dimensiones críticas del negocio: gestión de agenda en tiempo real para evitar duplicidades, aseguramiento del recaudo financiero mediante anticipos obligatorios y la conciliación/cobro de saldos en la recepción del establecimiento.
+- **Funcionalidades Postergadas:** Las historias clasificadas como **Should Have**, **Could Have** y **Won't Have** (`#3`, `#5`, `#9`, `#10`, `#11` y `#12`) se posponen para las siguientes fases de desarrollo. La reagendación, los descuentos comerciales y las notificaciones automáticas se gestionarán de forma manual por el operador mientras se valida la adopción inicial del sistema.
