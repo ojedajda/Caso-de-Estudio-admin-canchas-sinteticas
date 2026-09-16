@@ -1,6 +1,6 @@
 ### 1. Matriz de Priorización y Análisis de Valor
 
-| ID Issue | Historia de Usuario | Categoría MoSCoW | Criterio de Impacto (Valor de Negocio) | Justificación Estratégica | Estimación Empírica (Cualitativa) |
+| ID Issue | Historia de Usuario | Categoría MoSCoW | Criterio de Impacto (Valor de Negocio) | Justificación Estratégica | Estimación Empírica (Cualitativa) | 
 | :-: | :--- | :-: | :-: | :--- | :--- |
 | **#1** | HU01 - Consulta de Disponibilidad de Canchas | **Must Have** | Impacto Operativo | Evita reservas repetidas y garantiza la visualización en tiempo real del estado de  horarios. | Complejidad Media (organizacion de agendas en tiempo real). |
 | **2** | HU02 - Reserva de Cancha con Pago de Anticipo | **Must Have** | Impacto Financiero y Seguridad | Garantiza el pago previo del abono para reducir pérdidas monetarias por faltas (No-Show). | Complejidad Alta (Integración pasarela de pagos web). |
