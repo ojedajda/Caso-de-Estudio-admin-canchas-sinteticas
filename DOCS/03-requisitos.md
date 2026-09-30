@@ -6,11 +6,5 @@ Desarrollador(a) 2: Luisa Salazar
 2. Parámetros Base de Estimación
 Historia Pivote Seleccionada: [Nombre e ID de la HU Pivote]
 Puntaje Pivote Asignado: [1 SP o 2 SP]
-Factor de Conversión (
-F
-c
-): 1 SP = 8 Horas.
-Tarifa Hora (
-T
-h
-): $45.000 COP/Hora.
+Factor de Conversión (Fc): 1 SP = 8 Horas.
+Tarifa Hora (Th): $45.000 COP/Hora.
