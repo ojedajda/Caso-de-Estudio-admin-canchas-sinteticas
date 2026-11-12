@@ -113,6 +113,6 @@ Después del corte del Sprint 1, el equipo completó el resto del Product Backlo
 
 * **Orden de integración:** se respetó la prioridad MoSCoW de `DOCS/02`. Primero se integraron las historias *Must Have* del MVP (#4, #1, #2, #7, #8, #6), luego las *Should Have* (#3, #9, #12) y por último las *Could Have* y *Won't Have* (#10, #5, #11).
 * **Producto funcional:** página web en `index.html`, con 12 módulos agrupados en Cliente, Recepción y Administración. Usa la misma arquitectura en 3 capas de la HU04: Modelo, DAO, Controlador/Facade y Vista.
-* **Calidad:** 36 pruebas automatizadas (`npm test`), al menos dos por Historia de Usuario, que validan las reglas de negocio: anticipo del 50 %, política de cancelación y reagendamiento de 12 h, tarifas por franja, cupones en horario valle, bloqueos con devolución, etc.
+* **Calidad:** 47 pruebas automatizadas (`npm test`), al menos dos por Historia de Usuario, que validan las reglas de negocio: anticipo del 50 %, política de cancelación y reagendamiento de 12 h, tarifas por franja, cupones en horario valle, bloqueos con devolución, etc.
 * **Refactorización:** se creó `RepositorioBase` para no repetir el código CRUD en cada DAO. `CanchaController` ahora recibe su DAO por inyección de dependencias, y los módulos funcionan tanto en Node como en el navegador.
 * **Extensibilidad:** cada historia se agregó sin modificar las anteriores. Por ejemplo, las notificaciones (HU09) y las promociones (HU05) se conectan como dependencias opcionales de los controladores existentes.
