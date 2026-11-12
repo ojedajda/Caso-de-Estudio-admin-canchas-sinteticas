@@ -45,7 +45,7 @@
                             <td><b>${r.codigo}</b></td>
                             <td>${UI.esc(UI.nombreCancha(sistema, r.canchaId))}<br><small>${Fechas.nombreDia(r.fecha)} ${r.fecha} · ${UI.hora(r.hora)}</small></td>
                             <td class="num">${UI.cop(r.pagado)}<br><small>de ${UI.cop(r.valorTotal)}</small></td>
-                            <td><small>Faltan ${p.horasRestantes} h<br>${p.puedeCancelar ? 'Cambios permitidos' : `Sin cambios (menos de ${horas} h)`}</small></td>
+                            <td><small>Faltan ${p.tiempoRestante}<br>${p.puedeCancelar ? 'Cambios permitidos' : `Sin cambios (menos de ${horas} h)`}</small></td>
                             <td>${p.puedeCancelar ? `<div class="fila-botones"><select name="destino">${UI.opciones([['SALDO_A_FAVOR', 'Saldo a favor'], ['REEMBOLSO', 'Reembolso']], 'SALDO_A_FAVOR')}</select>
                                 <button class="btn btn-peligro btn-chico" data-accion="cancelar">Cancelar</button></div>` : `<small>No disponible (menos de ${horas} h)</small>`}</td>
                             <td>${p.puedeReagendar ? `<div class="fila-botones"><input type="date" name="nuevaFecha" min="${Fechas.hoy()}" value="${r.fecha}">
