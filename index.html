@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CanchaGO · Gestión de canchas sintéticas</title>
+    <meta name="description" content="CanchaGO: reservas, pagos de anticipo y control de acceso para canchas sintéticas.">
+    <link rel="stylesheet" href="public/css/styles.css">
+</head>
+<body>
+    <header class="encabezado">
+        <div class="marca">⚽ CanchaGO <span>Gestión de turnos y control de acceso</span></div>
+        <div class="acciones-globales">
+            <button class="btn" id="btn-demo" type="button">Cargar datos de demostración</button>
+            <button class="btn" id="btn-reiniciar" type="button">Reiniciar datos</button>
+        </div>
+    </header>
+    <div class="contenedor">
+        <nav class="menu" id="menu" aria-label="Módulos"></nav>
+        <main class="principal" id="principal"></main>
+        <footer class="pie">CanchaGO · Ingeniería de Software I · Universidad Mariana · Arquitectura en 3 capas (Modelo, DAO, Controlador/Facade, Vista)</footer>
+    </div>
+    <div id="toast" aria-live="polite"></div>
+
+    <script src="src/utils/Fechas.js"></script>
+    <script src="src/models/Cancha.js"></script>
+    <script src="src/models/Reserva.js"></script>
+    <script src="src/dao/Almacen.js"></script>
+    <script src="src/dao/RepositorioBase.js"></script>
+    <script src="src/dao/CanchaDAO.js"></script>
+    <script src="src/dao/ReservaDAO.js"></script>
+    <script src="src/controllers/CanchaController.js"></script>
+    <script src="src/controllers/DisponibilidadController.js"></script>
+    <script src="src/Sistema.js"></script>
+    <script src="src/views/web/vistaDisponibilidad.js"></script>
+    <script src="src/views/web/vistaCanchas.js"></script>
+    <script src="src/views/web/app.js"></script>
+</body>
+</html>

@@ -1,61 +1,44 @@
-const Cancha = require('../models/Cancha');
-
 /**
  * Clase DAO para gestionar la persistencia y consulta de Canchas (HU04)
  * Simula la integración con Base de Datos: la lógica de negocio
  * consume los datos sin saber cómo ni dónde están almacenados.
  */
-class CanchaDAO {
-    constructor() {
-        // Persistencia simulada en memoria para el prototipo
-        this.canchasBD = [
-            new Cancha(1, 'Cancha 1', 'Fútbol 5', 80000, 110000, 120000),
-            new Cancha(2, 'Cancha 2', 'Fútbol 7', 120000, 160000, 170000),
-            new Cancha(3, 'Cancha 3', 'Fútbol 8', 150000, 200000, 210000)
-        ];
-    }
+(function (global) {
+    'use strict';
+    const importar = (ruta, nombre) => (typeof require === 'function' ? require(ruta) : global.CanchaGO[nombre]);
+    const Cancha = importar('../models/Cancha', 'Cancha');
+    const RepositorioBase = importar('./RepositorioBase', 'RepositorioBase');
 
-    /**
-     * Contrato de método: Retorna la lista completa de canchas
-     * @returns {Array<Cancha>} Lista de entidades
-     */
-    obtenerTodas() {
-        return this.canchasBD;
-    }
+    /** Canchas con las que inicia el sistema (semilla de la BD) */
+    const SEMILLA = [
+        { id: 1, nombre: 'Cancha 1', tipo: 'Fútbol 5', tarifaBase: 80000, tarifaHoraPico: 110000, tarifaFestivo: 120000 },
+        { id: 2, nombre: 'Cancha 2', tipo: 'Fútbol 7', tarifaBase: 120000, tarifaHoraPico: 160000, tarifaFestivo: 170000 },
+        { id: 3, nombre: 'Cancha 3', tipo: 'Fútbol 8', tarifaBase: 150000, tarifaHoraPico: 200000, tarifaFestivo: 210000 }
+    ];
 
-    /**
-     * Contrato de método: Busca una cancha por su identificador
-     * @param {number} id Identificador de la cancha
-     * @returns {Cancha|undefined} La cancha encontrada o undefined si no existe
-     */
-    buscarPorId(id) {
-        return this.canchasBD.find((cancha) => cancha.id === id);
-    }
-
-    /**
-     * Contrato de método: Inserta una nueva cancha en la base de datos
-     * @param {Cancha} nuevaCancha
-     * @returns {Cancha} Objeto guardado
-     */
-    guardar(nuevaCancha) {
-        this.canchasBD.push(nuevaCancha);
-        return nuevaCancha;
-    }
-
-    /**
-     * Contrato de método: Actualiza los campos de una cancha existente
-     * @param {number} id Identificador de la cancha
-     * @param {Object} cambios Campos a modificar (ej: { tarifaBase: 90000 })
-     * @returns {Cancha|undefined} La cancha actualizada o undefined si no existe
-     */
-    actualizar(id, cambios) {
-        const cancha = this.buscarPorId(id);
-        if (!cancha) {
-            return undefined;
+    class CanchaDAO extends RepositorioBase {
+        /**
+         * @param {Object|null} [almacen=null] Almacén de datos (null = persistencia simulada en memoria)
+         */
+        constructor(almacen = null) {
+            super(almacen, 'canchas', Cancha, SEMILLA);
         }
-        Object.assign(cancha, cambios);
-        return cancha;
-    }
-}
 
-module.exports = CanchaDAO;
+        // Hereda de RepositorioBase los contratos:
+        // obtenerTodas(), buscarPorId(id), guardar(cancha), actualizar(id, cambios), siguienteId()
+
+        /**
+         * Contrato de método: Retorna solo las canchas habilitadas para la venta
+         * @returns {Array<Cancha>}
+         */
+        obtenerHabilitadas() {
+            return this.filtrar((cancha) => cancha.habilitada);
+        }
+    }
+
+    if (typeof module !== 'undefined' && module.exports) {
+        module.exports = CanchaDAO;
+    } else {
+        (global.CanchaGO = global.CanchaGO || {}).CanchaDAO = CanchaDAO;
+    }
+})(typeof window !== 'undefined' ? window : globalThis);
