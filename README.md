@@ -81,14 +81,29 @@ tests/                        # Pruebas automatizadas por historia de usuario (n
 ## Ejecución
 
 **Página web:** abre `index.html` con doble clic (o con la extensión *Live Server* de VS Code). No necesita instalar nada.
-Usa el botón **Cargar datos de demostración** para ver el sistema con reservas, pagos, reseñas y notificaciones de ejemplo.
+Los clientes pueden reservar y consultar sin cuenta. Las secciones de **Recepción** y **Administración** exigen iniciar sesión (botón **Iniciar sesión**, arriba a la derecha).
+Con el administrador, usa el botón **Cargar datos de demostración** para ver el sistema con reservas, pagos, reseñas y notificaciones de ejemplo.
+
+### Inicio de sesión (Issue #29, mejora fuera de las 12 Historias de Usuario)
+
+Cuentas de demostración:
+
+| Rol | Usuario | Contraseña | Qué puede usar |
+|---|---|---|---|
+| Administrador | `admin` | `Admin2026!` | Cliente, Recepción y Administración; cargar y reiniciar datos |
+| Recepción | `recepcion` | `Recepcion2026!` | Cliente y Recepción |
+
+* Las contraseñas no están en el código: solo se guardan como hash SHA-256 con sal y 2.000 vueltas.
+* 5 contraseñas incorrectas seguidas bloquean el acceso de ese usuario durante 1 minuto.
+* La sesión dura 2 horas, se conserva al recargar la página y se borra al cerrar la pestaña.
+* **Limitación:** es un control en el navegador, no seguridad de servidor. Quien tenga conocimientos técnicos podría saltárselo desde las herramientas del navegador, porque los datos viven en el mismo equipo. La seguridad real necesitaría un servidor con base de datos, y queda como mejora futura.
 
 **Pruebas automatizadas y demo de consola** (requiere [Node.js](https://nodejs.org/) 18 o superior):
 
 ```powershell
 git clone https://github.com/ojedajda/Caso-de-Estudio-admin-canchas-sinteticas.git
 cd Caso-de-Estudio-admin-canchas-sinteticas
-npm test      # 36 pruebas, al menos 2 por historia de usuario
+npm test      # 47 pruebas: al menos 2 por historia de usuario y 11 del inicio de sesión
 npm start     # demostración de consola de la HU04
 ```
 
