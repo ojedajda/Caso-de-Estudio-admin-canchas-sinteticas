@@ -1,27 +1,124 @@
-/** Pruebas de la HU03 - Cancelación y Reagendamiento de Turnos */
+/**
+ * Pruebas de la HU03 - Cancelación y Reagendamiento de Turnos (Issue #3)
+ * Criterio 1: cancelar o cambiar de fecha solo con 12 h o más de anticipación.
+ * Criterio 2: al cancelar a tiempo se emite saldo a favor para una futura reserva.
+ * Criterio 3: el horario cancelado queda libre de inmediato.
+ */
 const test = require('node:test');
 const assert = require('node:assert');
-const { AHORA, nuevoSistema, reservar } = require('./ayuda');
+const { AHORA, CLIENTE, nuevoSistema, reservar } = require('./ayuda');
 
-test('HU03 - cancelar con 24 h o más devuelve lo pagado como saldo a favor', () => {
+/** Turno del viernes 13 de noviembre de 2026 a las 18:00 */
+const TURNO = { fecha: '2026-11-13', hora: 18 };
+/** Momentos relativos a ese turno (viernes 13 de noviembre de 2026) */
+const DOCE_HORAS_ANTES = new Date(2026, 10, 13, 6, 0);        // 06:00: exactamente 12 h antes del turno de las 18:00
+const MAS_DE_DOCE_HORAS = new Date(2026, 10, 13, 5, 0);       // 05:00: 14 h antes de la reserva de las 19:00 (13 h antes de las 18:00)
+const MENOS_DE_DOCE_HORAS = new Date(2026, 10, 13, 6, 30);    // 06:30: 11 h 30 min antes del turno de las 18:00
+const UN_MINUTO_MAS = new Date(2026, 10, 13, 5, 59);          // 05:59: 12 h 1 min antes del turno de las 18:00
+const UN_MINUTO_MENOS = new Date(2026, 10, 13, 6, 1);         // 06:01: 11 h 59 min antes del turno de las 18:00
+
+test('HU03 criterio 1 - cancelar: se permite con exactamente 12 h y con más de 12 h', () => {
     const s = nuevoSistema();
-    const r = reservar(s, { fecha: '2026-11-14' });
-    const { devuelto } = s.gestion.cancelar(r.codigo, 'SALDO_A_FAVOR', AHORA);
-    assert.strictEqual(devuelto, 40000);
-    assert.strictEqual(r.estado, 'CANCELADA');
-    assert.strictEqual(s.gestion.saldoAFavor('3001234567'), 40000);
-    const nueva = reservar(s, { fecha: '2026-11-14', hora: 9 });                  // usa el saldo a favor
-    assert.strictEqual(nueva.pagado, 40000);
-    assert.strictEqual(s.gestion.saldoAFavor('3001234567'), 0);
+    const exacto = reservar(s, TURNO);
+    assert.strictEqual(s.gestion.cancelar(exacto.codigo, 'SALDO_A_FAVOR', DOCE_HORAS_ANTES).reserva.estado, 'CANCELADA');
+    const holgado = reservar(s, { ...TURNO, hora: 19 });                         // 19:00 -> a las 05:00 faltan 14 h
+    assert.strictEqual(s.gestion.cancelar(holgado.codigo, 'SALDO_A_FAVOR', MAS_DE_DOCE_HORAS).reserva.estado, 'CANCELADA');
 });
 
-test('HU03 - cancelar con menos de 24 h no devuelve el anticipo; el reembolso resta en caja', () => {
+test('HU03 criterio 1 - cancelar: se rechaza con menos de 12 h y la reserva sigue confirmada', () => {
     const s = nuevoSistema();
-    const tarde = reservar(s, { fecha: '2026-11-12', hora: 20 });
-    assert.strictEqual(s.gestion.cancelar(tarde.codigo, 'SALDO_A_FAVOR', AHORA).devuelto, 0);
-    const temprano = reservar(s, { fecha: '2026-11-20', hora: 10 });
-    s.gestion.cancelar(temprano.codigo, 'REEMBOLSO', AHORA);
-    assert.strictEqual(s.reportes.recaudoDiario('2026-11-12', AHORA).reembolsos, -40000);
+    const r = reservar(s, TURNO);
+    assert.throws(() => s.gestion.cancelar(r.codigo, 'SALDO_A_FAVOR', MENOS_DE_DOCE_HORAS), /Solo se puede cancelar con 12 h o más de anticipación \(faltan 11 h 30 min\)/);
+    assert.strictEqual(r.estado, 'CONFIRMADA');
+    assert.strictEqual(s.gestion.saldoAFavor(CLIENTE.telefono), 0);
+});
+
+test('HU03 criterio 1 - reagendar: se permite con exactamente 12 h y con más de 12 h, se rechaza con menos', () => {
+    const s = nuevoSistema();
+    const exacto = reservar(s, TURNO);
+    s.gestion.reagendar(exacto.codigo, { fecha: '2026-11-14', hora: 10 }, DOCE_HORAS_ANTES);
+    assert.deepStrictEqual([exacto.fecha, exacto.hora], ['2026-11-14', 10]);
+    const holgado = reservar(s, { ...TURNO, hora: 19 });                         // 19:00 -> a las 05:00 faltan 14 h
+    s.gestion.reagendar(holgado.codigo, { fecha: '2026-11-14', hora: 11 }, MAS_DE_DOCE_HORAS);
+    assert.deepStrictEqual([holgado.fecha, holgado.hora], ['2026-11-14', 11]);
+    const tarde = reservar(s, TURNO);                                          // 18:00 quedó libre al mover la primera
+    assert.throws(() => s.gestion.reagendar(tarde.codigo, { fecha: '2026-11-14', hora: 12 }, MENOS_DE_DOCE_HORAS), /Solo se puede reagendar con 12 h o más/);
+    assert.deepStrictEqual([tarde.fecha, tarde.hora], ['2026-11-13', 18]);
+});
+
+test('HU03 criterio 1 - cancelar: a las 05:59 (12 h 1 min antes) se permite y a las 06:01 (11 h 59 min antes) se rechaza', () => {
+    const s = nuevoSistema();
+    const conMinutoDeMas = reservar(s, TURNO);
+    assert.strictEqual(s.gestion.cancelar(conMinutoDeMas.codigo, 'SALDO_A_FAVOR', UN_MINUTO_MAS).reserva.estado, 'CANCELADA');
+    const conMinutoDeMenos = reservar(s, TURNO);                                // 18:00 quedó libre al cancelar la anterior
+    assert.throws(() => s.gestion.cancelar(conMinutoDeMenos.codigo, 'SALDO_A_FAVOR', UN_MINUTO_MENOS),
+        { message: 'Solo se puede cancelar con 12 h o más de anticipación (faltan 11 h 59 min)' });
+    assert.strictEqual(conMinutoDeMenos.estado, 'CONFIRMADA');
+});
+
+test('HU03 criterio 1 - reagendar: a las 05:59 (12 h 1 min antes) se permite y a las 06:01 (11 h 59 min antes) se rechaza', () => {
+    const s = nuevoSistema();
+    const conMinutoDeMas = reservar(s, TURNO);
+    s.gestion.reagendar(conMinutoDeMas.codigo, { fecha: '2026-11-14', hora: 10 }, UN_MINUTO_MAS);
+    assert.deepStrictEqual([conMinutoDeMas.fecha, conMinutoDeMas.hora], ['2026-11-14', 10]);
+    const conMinutoDeMenos = reservar(s, TURNO);                                // 18:00 quedó libre al mover la anterior
+    assert.throws(() => s.gestion.reagendar(conMinutoDeMenos.codigo, { fecha: '2026-11-14', hora: 11 }, UN_MINUTO_MENOS),
+        { message: 'Solo se puede reagendar con 12 h o más de anticipación (faltan 11 h 59 min)' });
+    assert.deepStrictEqual([conMinutoDeMenos.fecha, conMinutoDeMenos.hora], ['2026-11-13', 18]);
+});
+
+test('HU03 - el tiempo restante se muestra en horas y minutos exactos, sin redondear hacia arriba', () => {
+    const s = nuevoSistema();
+    const r = reservar(s, TURNO);
+    assert.strictEqual(s.gestion.politica(r, UN_MINUTO_MENOS).tiempoRestante, '11 h 59 min');
+    assert.strictEqual(s.gestion.politica(r, UN_MINUTO_MAS).tiempoRestante, '12 h 1 min');
+    assert.strictEqual(s.gestion.politica(r, DOCE_HORAS_ANTES).tiempoRestante, '12 h');
+    assert.strictEqual(s.gestion.politica(r, new Date(2026, 10, 13, 17, 30)).tiempoRestante, '30 min');
+});
+
+test('HU03 criterio 1 - la política informa qué está permitido en cada momento', () => {
+    const s = nuevoSistema();
+    const r = reservar(s, TURNO);
+    assert.strictEqual(s.gestion.politica(r, DOCE_HORAS_ANTES).puedeCancelar, true);
+    assert.strictEqual(s.gestion.politica(r, MENOS_DE_DOCE_HORAS).puedeCancelar, false);
+    assert.strictEqual(s.gestion.politica(r, MENOS_DE_DOCE_HORAS).puedeReagendar, false);
+});
+
+test('HU03 criterio 2 - el saldo a favor se genera, queda asociado al cliente y se usa en una reserva posterior', () => {
+    const s = nuevoSistema();
+    const r = reservar(s, TURNO);                                                 // anticipo $55.000 (hora pico)
+    const resultado = s.gestion.cancelar(r.codigo, undefined, MAS_DE_DOCE_HORAS);  // destino por defecto
+    assert.deepStrictEqual([resultado.destino, resultado.alSaldo, resultado.reembolsado], ['SALDO_A_FAVOR', 55000, 0]);
+    const cliente = s.daos.clienteDAO.buscarPorTelefono(CLIENTE.telefono);
+    assert.strictEqual(cliente.saldoAFavor, 55000);
+    assert.strictEqual(s.reportes.recaudoDiario('2026-11-13', MAS_DE_DOCE_HORAS).reembolsos, 0);
+    // Reserva posterior de $80.000: anticipo $40.000 cubierto con el saldo a favor
+    const nueva = reservar(s, { fecha: '2026-11-14', hora: 10 }, MAS_DE_DOCE_HORAS);
+    assert.strictEqual(nueva.pagado, 40000);
+    assert.strictEqual(cliente.saldoAFavor, 15000);
+    const pagos = s.daos.pagoDAO.buscarPorReserva(nueva.id);
+    assert.deepStrictEqual(pagos.map((p) => [p.tipo, p.monto]), [['SALDO_A_FAVOR', 40000]]);
+});
+
+test('HU03 criterio 3 - el horario cancelado queda libre de inmediato y otro cliente puede reservarlo', () => {
+    const s = nuevoSistema();
+    const r = reservar(s, TURNO);
+    assert.strictEqual(s.disponibilidad.horasLibres(1, TURNO.fecha, MAS_DE_DOCE_HORAS).includes(18), false);
+    s.gestion.cancelar(r.codigo, 'SALDO_A_FAVOR', MAS_DE_DOCE_HORAS);
+    assert.strictEqual(s.disponibilidad.horasLibres(1, TURNO.fecha, MAS_DE_DOCE_HORAS).includes(18), true);
+    const otro = reservar(s, { ...TURNO, nombre: 'Samuel Betancourt', telefono: '3109876543' }, MAS_DE_DOCE_HORAS);
+    assert.strictEqual(otro.estado, 'CONFIRMADA');
+});
+
+test('HU03 - reembolso opcional: solo se devuelve en dinero lo pagado en dinero', () => {
+    const s = nuevoSistema();
+    const primera = reservar(s, { fecha: '2026-11-14', hora: 10 });               // paga $40.000 en Nequi
+    s.gestion.cancelar(primera.codigo, 'SALDO_A_FAVOR', AHORA);                     // saldo a favor $40.000
+    const segunda = reservar(s, { fecha: '2026-11-14', hora: 19 });                // anticipo $55.000: $40.000 saldo + $15.000 Nequi
+    const resultado = s.gestion.cancelar(segunda.codigo, 'REEMBOLSO', AHORA);
+    assert.deepStrictEqual([resultado.alSaldo, resultado.reembolsado], [40000, 15000]);
+    assert.strictEqual(s.gestion.saldoAFavor(CLIENTE.telefono), 40000);
+    assert.strictEqual(s.reportes.recaudoDiario('2026-11-12', AHORA).reembolsos, -15000);
 });
 
 test('HU03 - reagendar mueve la reserva a una franja libre y recalcula la tarifa', () => {
@@ -30,6 +127,4 @@ test('HU03 - reagendar mueve la reserva a una franja libre y recalcula la tarifa
     s.gestion.reagendar(r.codigo, { fecha: '2026-11-14', hora: 19 }, AHORA);       // hora pico $110.000
     assert.deepStrictEqual([r.hora, r.valorTotal, r.saldoPendiente], [19, 110000, 70000]);
     assert.strictEqual(s.disponibilidad.horasLibres(1, '2026-11-14', AHORA).includes(10), true);
-    const otra = reservar(s, { fecha: '2026-11-12', hora: 20 });
-    assert.throws(() => s.gestion.reagendar(otra.codigo, { fecha: '2026-11-14', hora: 11 }, AHORA), /24 h o más/);
 });

@@ -14,12 +14,12 @@
         orden: 3,
         render(el, sistema, params) {
             const { UI, Fechas } = CG;
-            const horas = CG.GestionReservaController.HORAS_MINIMAS_DEVOLUCION;
+            const horas = CG.GestionReservaController.HORAS_MINIMAS_CAMBIO;
             el.innerHTML = `
                 <div class="titulo-vista">
                     <div><h2>Mis reservas: cancelar o reagendar</h2>
-                    <p class="muted">Con ${horas} h o más de anticipación recuperas lo pagado (saldo a favor o reembolso) y puedes reagendar.
-                    Con menos de ${horas} h el anticipo no se devuelve.</p></div>
+                    <p class="muted">Puedes cancelar o cambiar tu turno hasta ${horas} h antes del partido. Al cancelar, lo pagado queda
+                    como saldo a favor para tu próxima reserva (o, si lo prefieres, como reembolso). Con menos de ${horas} h ya no se permiten cambios.</p></div>
                 </div>
                 <div class="tarjeta">
                     <form id="buscar" class="fila-botones">
@@ -45,11 +45,11 @@
                             <td><b>${r.codigo}</b></td>
                             <td>${UI.esc(UI.nombreCancha(sistema, r.canchaId))}<br><small>${Fechas.nombreDia(r.fecha)} ${r.fecha} · ${UI.hora(r.hora)}</small></td>
                             <td class="num">${UI.cop(r.pagado)}<br><small>de ${UI.cop(r.valorTotal)}</small></td>
-                            <td><small>Faltan ${p.horasRestantes} h<br>${p.conDevolucion ? 'Con devolución' : 'Sin devolución'}</small></td>
-                            <td><div class="fila-botones"><select name="destino" ${p.conDevolucion ? '' : 'disabled'}>${UI.opciones([['SALDO_A_FAVOR', 'Saldo a favor'], ['REEMBOLSO', 'Reembolso']], 'SALDO_A_FAVOR')}</select>
-                                <button class="btn btn-peligro btn-chico" data-accion="cancelar">Cancelar</button></div></td>
+                            <td><small>Faltan ${p.tiempoRestante}<br>${p.puedeCancelar ? 'Cambios permitidos' : `Sin cambios (menos de ${horas} h)`}</small></td>
+                            <td>${p.puedeCancelar ? `<div class="fila-botones"><select name="destino">${UI.opciones([['SALDO_A_FAVOR', 'Saldo a favor'], ['REEMBOLSO', 'Reembolso']], 'SALDO_A_FAVOR')}</select>
+                                <button class="btn btn-peligro btn-chico" data-accion="cancelar">Cancelar</button></div>` : `<small>No disponible (menos de ${horas} h)</small>`}</td>
                             <td>${p.puedeReagendar ? `<div class="fila-botones"><input type="date" name="nuevaFecha" min="${Fechas.hoy()}" value="${r.fecha}">
-                                <select name="nuevaHora"></select><button class="btn btn-chico" data-accion="reagendar">Mover</button></div>` : '<small>No disponible (menos de 24 h)</small>'}</td></tr>`;
+                                <select name="nuevaHora"></select><button class="btn btn-chico" data-accion="reagendar">Mover</button></div>` : `<small>No disponible (menos de ${horas} h)</small>`}</td></tr>`;
                     }).join('')}</table></div>` : UI.vacio('No tienes reservas vigentes con ese número.')}</div>`;
                 lista.querySelectorAll('tr[data-codigo]').forEach((fila) => {
                     const fecha = fila.querySelector('[name="nuevaFecha"]');
@@ -80,7 +80,10 @@
                 if (boton.dataset.accion === 'cancelar') {
                     const resultado = UI.intentar(() => sistema.gestion.cancelar(codigo, fila.querySelector('[name="destino"]').value));
                     if (resultado) {
-                        UI.toast(resultado.devuelto ? `Reserva ${codigo} cancelada. Devolución: ${UI.cop(resultado.devuelto)}` : `Reserva ${codigo} cancelada sin devolución`);
+                        const partes = [];
+                        if (resultado.alSaldo) partes.push(`${UI.cop(resultado.alSaldo)} a tu saldo a favor`);
+                        if (resultado.reembolsado) partes.push(`${UI.cop(resultado.reembolsado)} de reembolso`);
+                        UI.toast(`Reserva ${codigo} cancelada${partes.length ? `: ${partes.join(' y ')}` : ''}. La franja quedó libre.`);
                     }
                 } else {
                     const hora = fila.querySelector('[name="nuevaHora"]').value;

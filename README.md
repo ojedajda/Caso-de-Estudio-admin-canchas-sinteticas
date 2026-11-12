@@ -46,7 +46,7 @@ CanchaGO es una plataforma web para la comercialización y gestión de turnos y 
 | :-: | :--- | :--- | :--- |
 | HU01 | Consulta de disponibilidad en tiempo real | Cliente › Disponibilidad | `DisponibilidadController` |
 | HU02 | Reserva con pago de anticipo (50 %) | Cliente › Reservar cancha | `ReservaController` |
-| HU03 | Cancelación y reagendamiento con política de 24 h | Cliente › Cancelar / reagendar | `GestionReservaController` |
+| HU03 | Cancelación y reagendamiento con 12 h de anticipación y saldo a favor | Cliente › Cancelar / reagendar | `GestionReservaController` |
 | HU04 | Canchas y tarifas dinámicas (base, pico, festivo) | Administración › Canchas y tarifas | `CanchaController` |
 | HU05 | Promociones y cupones de descuento | Administración › Promociones | `PromocionController` |
 | HU06 | Reporte de recaudos diarios y exportación CSV | Administración › Recaudos del día | `ReporteController` |
@@ -88,7 +88,7 @@ Usa el botón **Cargar datos de demostración** para ver el sistema con reservas
 ```powershell
 git clone https://github.com/ojedajda/Caso-de-Estudio-admin-canchas-sinteticas.git
 cd Caso-de-Estudio-admin-canchas-sinteticas
-npm test      # 28 pruebas, al menos 2 por historia de usuario
+npm test      # 36 pruebas, al menos 2 por historia de usuario
 npm start     # demostración de consola de la HU04
 ```
 
