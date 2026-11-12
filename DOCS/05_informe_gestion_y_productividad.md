@@ -1,9 +1,9 @@
 # Informe de Gestión y Productividad - Sprint 1
 
-**Proyecto:** CanchaGO – Gestión de turnos y control de acceso en canchas sintéticas
-**Tablero:** GitHub Projects · *CanchaGO - Gestión Ágil* (plantilla *Iterative development*)
-**Asignatura:** Ingeniería de Software I – Universidad Mariana
-**Fecha de corte:** 12 de noviembre de 2026
+* **Proyecto:** CanchaGO – Gestión de turnos y control de acceso en canchas sintéticas
+* **Tablero:** GitHub Projects · *CanchaGO - Gestión Ágil* (plantilla *Iterative development*)
+* **Asignatura:** Ingeniería de Software I – Universidad Mariana
+* **Fecha de corte:** 12 de noviembre de 2026
 
 | Rol | Integrante |
 | :--- | :--- |
