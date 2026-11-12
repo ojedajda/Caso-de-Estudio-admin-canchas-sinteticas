@@ -58,6 +58,11 @@ a { color: var(--cesped); }
 .barra-estado { display: flex; align-items: center; gap: .55rem; font-size: .92rem; color: var(--pizarra); }
 .barra-estado::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--cesped); box-shadow: 0 0 0 4px var(--cesped-claro); }
 .acciones-globales { display: flex; gap: .5rem; flex-wrap: wrap; }
+.acciones-globales > span { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
+.acciones-globales > span[hidden] { display: none; }
+.sesion-nombre { font-size: .92rem; font-weight: 600; color: var(--pizarra); }
+.login { max-width: 460px; }
+.campos-login { grid-template-columns: 1fr; }
 .principal { padding: 2rem; max-width: 1240px; width: 100%; }
 
 /* ---------- Encabezado de cada vista ---------- */
