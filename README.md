@@ -88,7 +88,7 @@ Usa el botón **Cargar datos de demostración** para ver el sistema con reservas
 ```powershell
 git clone https://github.com/ojedajda/Caso-de-Estudio-admin-canchas-sinteticas.git
 cd Caso-de-Estudio-admin-canchas-sinteticas
-npm test      # 28 pruebas, al menos 2 por historia de usuario
+npm test      # 36 pruebas, al menos 2 por historia de usuario
 npm start     # demostración de consola de la HU04
 ```
 
