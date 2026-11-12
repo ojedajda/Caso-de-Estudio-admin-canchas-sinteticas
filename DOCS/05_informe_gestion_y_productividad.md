@@ -10,7 +10,7 @@
 | Product Owner | Samuel Betancourt |
 | Líder Técnico | Jesús Ojeda |
 | Desarrolladora | Luisa Salazar |
-| Desarrolladora | Karol Herrera |
+| Desarrolladora | Karol Estefany Herrera |
 
 ## 1. Resumen de la Iteración
 
