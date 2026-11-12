@@ -4,7 +4,7 @@ Product Owner: Samuel Betancourt
 
 Líder Técnico: Jesus Ojeda
 
-Desarrollador(a) 1: Estefany Herrera
+Desarrollador(a) 1: Karol Estefany Herrera
 
 Desarrollador(a) 2: Luisa Salazar 
 
