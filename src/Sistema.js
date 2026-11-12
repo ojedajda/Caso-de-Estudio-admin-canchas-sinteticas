@@ -43,7 +43,8 @@
             notificacionDAO: ['./dao/NotificacionDAO', 'NotificacionDAO'],
             promocionDAO: ['./dao/PromocionDAO', 'PromocionDAO'],
             bloqueoDAO: ['./dao/BloqueoDAO', 'BloqueoDAO'],
-            resenaDAO: ['./dao/ResenaDAO', 'ResenaDAO']
+            resenaDAO: ['./dao/ResenaDAO', 'ResenaDAO'],
+            usuarioDAO: ['./dao/UsuarioDAO', 'UsuarioDAO']
         };
         Object.entries(DAOS).forEach(([clave, [ruta, nombre]]) => {
             const Clase = cargar(ruta, nombre);
@@ -65,7 +66,8 @@
             ['gestion', 'gestion', './controllers/GestionReservaController', 'GestionReservaController'],
             ['historial', 'historial', './controllers/HistorialController', 'HistorialController'],
             ['bloqueos', 'bloqueos', './controllers/BloqueoController', 'BloqueoController'],
-            ['resenas', 'resenas', './controllers/ResenaController', 'ResenaController']
+            ['resenas', 'resenas', './controllers/ResenaController', 'ResenaController'],
+            ['auth', 'auth', './controllers/AuthController', 'AuthController']
         ];
         CONTROLADORES.forEach(([nombreSistema, nombreDep, ruta, nombre]) => {
             const Clase = cargar(ruta, nombre);
