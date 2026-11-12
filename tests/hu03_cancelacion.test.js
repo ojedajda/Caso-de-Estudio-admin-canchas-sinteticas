@@ -10,23 +10,25 @@ const { AHORA, CLIENTE, nuevoSistema, reservar } = require('./ayuda');
 
 /** Turno del viernes 13 de noviembre de 2026 a las 18:00 */
 const TURNO = { fecha: '2026-11-13', hora: 18 };
-/** Momentos relativos a ese turno */
-const DOCE_HORAS_ANTES = new Date(2026, 10, 13, 6, 0);        // exactamente 12 h antes
-const MAS_DE_DOCE_HORAS = new Date(2026, 10, 13, 5, 0);       // 13 h antes
-const MENOS_DE_DOCE_HORAS = new Date(2026, 10, 13, 6, 30);    // 11,5 h antes
+/** Momentos relativos a ese turno (viernes 13 de noviembre de 2026) */
+const DOCE_HORAS_ANTES = new Date(2026, 10, 13, 6, 0);        // 06:00: exactamente 12 h antes del turno de las 18:00
+const MAS_DE_DOCE_HORAS = new Date(2026, 10, 13, 5, 0);       // 05:00: 14 h antes de la reserva de las 19:00 (13 h antes de las 18:00)
+const MENOS_DE_DOCE_HORAS = new Date(2026, 10, 13, 6, 30);    // 06:30: 11 h 30 min antes del turno de las 18:00
+const UN_MINUTO_MAS = new Date(2026, 10, 13, 5, 59);          // 05:59: 12 h 1 min antes del turno de las 18:00
+const UN_MINUTO_MENOS = new Date(2026, 10, 13, 6, 1);         // 06:01: 11 h 59 min antes del turno de las 18:00
 
 test('HU03 criterio 1 - cancelar: se permite con exactamente 12 h y con más de 12 h', () => {
     const s = nuevoSistema();
     const exacto = reservar(s, TURNO);
     assert.strictEqual(s.gestion.cancelar(exacto.codigo, 'SALDO_A_FAVOR', DOCE_HORAS_ANTES).reserva.estado, 'CANCELADA');
-    const holgado = reservar(s, { ...TURNO, hora: 19 });
+    const holgado = reservar(s, { ...TURNO, hora: 19 });                         // 19:00 -> a las 05:00 faltan 14 h
     assert.strictEqual(s.gestion.cancelar(holgado.codigo, 'SALDO_A_FAVOR', MAS_DE_DOCE_HORAS).reserva.estado, 'CANCELADA');
 });
 
 test('HU03 criterio 1 - cancelar: se rechaza con menos de 12 h y la reserva sigue confirmada', () => {
     const s = nuevoSistema();
     const r = reservar(s, TURNO);
-    assert.throws(() => s.gestion.cancelar(r.codigo, 'SALDO_A_FAVOR', MENOS_DE_DOCE_HORAS), /Solo se puede cancelar con 12 h o más/);
+    assert.throws(() => s.gestion.cancelar(r.codigo, 'SALDO_A_FAVOR', MENOS_DE_DOCE_HORAS), /Solo se puede cancelar con 12 h o más de anticipación \(faltan 11 h 30 min\)/);
     assert.strictEqual(r.estado, 'CONFIRMADA');
     assert.strictEqual(s.gestion.saldoAFavor(CLIENTE.telefono), 0);
 });
@@ -36,12 +38,42 @@ test('HU03 criterio 1 - reagendar: se permite con exactamente 12 h y con más de
     const exacto = reservar(s, TURNO);
     s.gestion.reagendar(exacto.codigo, { fecha: '2026-11-14', hora: 10 }, DOCE_HORAS_ANTES);
     assert.deepStrictEqual([exacto.fecha, exacto.hora], ['2026-11-14', 10]);
-    const holgado = reservar(s, { ...TURNO, hora: 19 });
+    const holgado = reservar(s, { ...TURNO, hora: 19 });                         // 19:00 -> a las 05:00 faltan 14 h
     s.gestion.reagendar(holgado.codigo, { fecha: '2026-11-14', hora: 11 }, MAS_DE_DOCE_HORAS);
     assert.deepStrictEqual([holgado.fecha, holgado.hora], ['2026-11-14', 11]);
     const tarde = reservar(s, TURNO);                                          // 18:00 quedó libre al mover la primera
     assert.throws(() => s.gestion.reagendar(tarde.codigo, { fecha: '2026-11-14', hora: 12 }, MENOS_DE_DOCE_HORAS), /Solo se puede reagendar con 12 h o más/);
     assert.deepStrictEqual([tarde.fecha, tarde.hora], ['2026-11-13', 18]);
+});
+
+test('HU03 criterio 1 - cancelar: a las 05:59 (12 h 1 min antes) se permite y a las 06:01 (11 h 59 min antes) se rechaza', () => {
+    const s = nuevoSistema();
+    const conMinutoDeMas = reservar(s, TURNO);
+    assert.strictEqual(s.gestion.cancelar(conMinutoDeMas.codigo, 'SALDO_A_FAVOR', UN_MINUTO_MAS).reserva.estado, 'CANCELADA');
+    const conMinutoDeMenos = reservar(s, TURNO);                                // 18:00 quedó libre al cancelar la anterior
+    assert.throws(() => s.gestion.cancelar(conMinutoDeMenos.codigo, 'SALDO_A_FAVOR', UN_MINUTO_MENOS),
+        { message: 'Solo se puede cancelar con 12 h o más de anticipación (faltan 11 h 59 min)' });
+    assert.strictEqual(conMinutoDeMenos.estado, 'CONFIRMADA');
+});
+
+test('HU03 criterio 1 - reagendar: a las 05:59 (12 h 1 min antes) se permite y a las 06:01 (11 h 59 min antes) se rechaza', () => {
+    const s = nuevoSistema();
+    const conMinutoDeMas = reservar(s, TURNO);
+    s.gestion.reagendar(conMinutoDeMas.codigo, { fecha: '2026-11-14', hora: 10 }, UN_MINUTO_MAS);
+    assert.deepStrictEqual([conMinutoDeMas.fecha, conMinutoDeMas.hora], ['2026-11-14', 10]);
+    const conMinutoDeMenos = reservar(s, TURNO);                                // 18:00 quedó libre al mover la anterior
+    assert.throws(() => s.gestion.reagendar(conMinutoDeMenos.codigo, { fecha: '2026-11-14', hora: 11 }, UN_MINUTO_MENOS),
+        { message: 'Solo se puede reagendar con 12 h o más de anticipación (faltan 11 h 59 min)' });
+    assert.deepStrictEqual([conMinutoDeMenos.fecha, conMinutoDeMenos.hora], ['2026-11-13', 18]);
+});
+
+test('HU03 - el tiempo restante se muestra en horas y minutos exactos, sin redondear hacia arriba', () => {
+    const s = nuevoSistema();
+    const r = reservar(s, TURNO);
+    assert.strictEqual(s.gestion.politica(r, UN_MINUTO_MENOS).tiempoRestante, '11 h 59 min');
+    assert.strictEqual(s.gestion.politica(r, UN_MINUTO_MAS).tiempoRestante, '12 h 1 min');
+    assert.strictEqual(s.gestion.politica(r, DOCE_HORAS_ANTES).tiempoRestante, '12 h');
+    assert.strictEqual(s.gestion.politica(r, new Date(2026, 10, 13, 17, 30)).tiempoRestante, '30 min');
 });
 
 test('HU03 criterio 1 - la política informa qué está permitido en cada momento', () => {
