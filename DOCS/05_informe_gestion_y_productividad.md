@@ -99,17 +99,17 @@ Después del corte del Sprint 1, el equipo completó el resto del Product Backlo
 | Orden | Issue | Historia de Usuario | SP | Rama | Estado |
 | :-: | :-: | :--- | :-: | :--- | :--- |
 | 1 | #4 | Configuración de Canchas y Tarifas Dinámicas | 8 | `feature/issue-4-configuracion-canchas-tarifas` | Done (PR #13) |
-| 2 | #1 | Consulta de Disponibilidad de Canchas (arquitectura base web) | 13 | `feature/issue-1-consulta-disponibilidad` | Done |
-| 3 | #2 | Reserva de Cancha con Pago de Anticipo | 5 | `feature/issue-2-reserva-anticipo` | Done |
-| 4 | #7 | Registro de Ingreso y Cobro de Saldo Restante | 5 | `feature/issue-7-ingreso-cobro-saldo` | Done |
-| 5 | #8 | Registro Manual de Reservas Presenciales o Telefónicas | 5 | `feature/issue-8-reservas-taquilla` | Done |
-| 6 | #6 | Reporte y Monitoreo de Recaudos Diarios | 5 | `feature/issue-6-reporte-recaudos` | Done |
-| 7 | #3 | Cancelación y Reagendar de Turnos | 3 | `feature/issue-3-cancelar-reagendar` | Done |
-| 8 | #9 | Notificaciones Automáticas de Confirmación y Recordatorio | 5 | `feature/issue-9-notificaciones` | Done |
-| 9 | #10 | Historial de Reservas y Repetición de Turno Frecuente | 3 | `feature/issue-10-historial-repetir-turno` | Done |
-| 10 | #12 | Bloqueo de Emergencia por Mantenimiento o Imprevistos | 5 | `feature/issue-12-bloqueo-emergencia` | Done |
-| 11 | #5 | Creación de Promociones y Descuentos | 3 | `feature/issue-5-promociones` | Done |
-| 12 | #11 | Calificación y Reseña del Servicio de la Cancha | 2 | `feature/issue-11-resenas` | Done |
+| 2 | #1 | Consulta de Disponibilidad de Canchas (arquitectura base web) | 13 (4 + 9) | `feature/issue-1-consulta-disponibilidad` | Done (PR #15) |
+| 3 | #2 | Reserva de Cancha con Pago de Anticipo | 5 | `feature/issue-2-reserva-anticipo` | Done (PR #16) |
+| 4 | #7 | Registro de Ingreso y Cobro de Saldo Restante | 5 | `feature/issue-7-ingreso-cobro-saldo` | Done (PR #17) |
+| 5 | #8 | Registro Manual de Reservas Presenciales o Telefónicas | 5 | `feature/issue-8-reservas-taquilla` | Done (PR #18) |
+| 6 | #6 | Reporte y Monitoreo de Recaudos Diarios | 5 | `feature/issue-6-reporte-recaudos` | Done (PR #19) |
+| 7 | #3 | Cancelación y Reagendar de Turnos | 3 | `feature/issue-3-cancelar-reagendar` | Done (PR #20) |
+| 8 | #9 | Notificaciones Automáticas de Confirmación y Recordatorio | 5 | `feature/issue-9-notificaciones` | Done (PR #21) |
+| 9 | #10 | Historial de Reservas y Repetición de Turno Frecuente | 3 | `feature/issue-10-historial-repetir-turno` | Done (PR #22) |
+| 10 | #12 | Bloqueo de Emergencia por Mantenimiento o Imprevistos | 5 | `feature/issue-12-bloqueo-emergencia` | Done (PR #23) |
+| 11 | #5 | Creación de Promociones y Descuentos | 3 | `feature/issue-5-promociones` | Done (PR #24) |
+| 12 | #11 | Calificación y Reseña del Servicio de la Cancha | 2 | `feature/issue-11-resenas` | Done (PR #25) |
 
 * **Orden de integración:** se respetó la prioridad MoSCoW de `DOCS/02`. Primero se integraron las historias *Must Have* del MVP (#4, #1, #2, #7, #8, #6), luego las *Should Have* (#3, #9, #12) y por último las *Could Have* y *Won't Have* (#10, #5, #11).
 * **Producto funcional:** página web en `index.html`, con 12 módulos agrupados en Cliente, Recepción y Administración. Usa la misma arquitectura en 3 capas de la HU04: Modelo, DAO, Controlador/Facade y Vista.
