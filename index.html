@@ -3,22 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CanchaGO · Gestión de canchas sintéticas</title>
+    <title>CanchaGO · Reservas de canchas sintéticas</title>
     <meta name="description" content="CanchaGO: reservas, pagos de anticipo y control de acceso para canchas sintéticas.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="public/css/styles.css">
 </head>
 <body>
-    <header class="encabezado">
-        <div class="marca">⚽ CanchaGO <span>Gestión de turnos y control de acceso</span></div>
-        <div class="acciones-globales">
-            <button class="btn" id="btn-demo" type="button">Cargar datos de demostración</button>
-            <button class="btn" id="btn-reiniciar" type="button">Reiniciar datos</button>
+    <div class="app">
+        <aside class="lateral">
+            <a class="marca" href="#disponibilidad" aria-label="CanchaGO, inicio">
+                <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true">
+                    <rect x="1" y="1" width="42" height="42" rx="10" fill="#1f7a4d"/>
+                    <rect x="7" y="9" width="30" height="26" rx="2" fill="none" stroke="#fff" stroke-width="2"/>
+                    <line x1="22" y1="9" x2="22" y2="35" stroke="#fff" stroke-width="2"/>
+                    <circle cx="22" cy="22" r="5" fill="none" stroke="#fff" stroke-width="2"/>
+                    <circle cx="22" cy="22" r="1.6" fill="#f2c230"/>
+                </svg>
+                <div><strong>CanchaGO</strong><span>Canchas sintéticas · Pasto</span></div>
+            </a>
+            <nav class="menu" id="menu" aria-label="Módulos"></nav>
+            <div class="lateral-pie">Ingeniería de Software I<br>Universidad Mariana · Pasto</div>
+        </aside>
+        <div class="area">
+            <header class="barra">
+                <div class="barra-estado">Agenda sincronizada en tiempo real</div>
+                <div class="acciones-globales">
+                    <button class="btn" id="btn-demo" type="button">Cargar datos de demostración</button>
+                    <button class="btn" id="btn-reiniciar" type="button">Reiniciar datos</button>
+                </div>
+            </header>
+            <main class="principal" id="principal"></main>
         </div>
-    </header>
-    <div class="contenedor">
-        <nav class="menu" id="menu" aria-label="Módulos"></nav>
-        <main class="principal" id="principal"></main>
-        <footer class="pie">CanchaGO · Ingeniería de Software I · Universidad Mariana · Arquitectura en 3 capas (Modelo, DAO, Controlador/Facade, Vista)</footer>
     </div>
     <div id="toast" aria-live="polite"></div>
 
