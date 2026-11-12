@@ -18,6 +18,21 @@
     const HORAS_MINIMAS_CAMBIO = 12;
     const DESTINOS = ['SALDO_A_FAVOR', 'REEMBOLSO'];
 
+    /**
+     * Contrato: Expresa un tiempo en horas y minutos exactos, sin redondear hacia arriba
+     * @param {number} horas Tiempo en horas (puede tener decimales)
+     * @returns {string} ej: 11,983 h -> "11 h 59 min"; 12 h -> "12 h"; 0,5 h -> "30 min"
+     */
+    function textoTiempo(horas) {
+        const minutos = Math.max(0, Math.floor(Math.round(horas * 3600) / 60));
+        const h = Math.floor(minutos / 60);
+        const m = minutos % 60;
+        if (h === 0) {
+            return `${m} min`;
+        }
+        return m === 0 ? `${h} h` : `${h} h ${m} min`;
+    }
+
     class GestionReservaController {
         /**
          * @param {Object} deps Dependencias: reservaDAO, clienteDAO, reservas, disponibilidad,
@@ -53,13 +68,14 @@
          * Contrato: Qué permite la política para una reserva en este momento
          * @param {Reserva} reserva
          * @param {Date} [ahora=new Date()]
-         * @returns {{horasRestantes: number, puedeCancelar: boolean, puedeReagendar: boolean, conDevolucion: boolean}}
+         * @returns {{horasRestantes: number, tiempoRestante: string, puedeCancelar: boolean, puedeReagendar: boolean, conDevolucion: boolean}}
          */
         politica(reserva, ahora = new Date()) {
             const horasRestantes = Fechas.horasHasta(reserva.fecha, reserva.hora, ahora);
             const aTiempo = horasRestantes >= HORAS_MINIMAS_CAMBIO;
             return {
                 horasRestantes: Math.round(horasRestantes * 10) / 10,
+                tiempoRestante: textoTiempo(horasRestantes),
                 puedeCancelar: aTiempo,
                 puedeReagendar: aTiempo,
                 conDevolucion: aTiempo
@@ -79,9 +95,9 @@
                 throw new Error('El destino de la devolución debe ser SALDO_A_FAVOR o REEMBOLSO');
             }
             const reserva = this.validarModificable(codigo, ahora);
-            const { puedeCancelar, horasRestantes } = this.politica(reserva, ahora);
+            const { puedeCancelar, tiempoRestante } = this.politica(reserva, ahora);
             if (!puedeCancelar) {
-                throw new Error(`Solo se puede cancelar con ${HORAS_MINIMAS_CAMBIO} h o más de anticipación (faltan ${horasRestantes} h)`);
+                throw new Error(`Solo se puede cancelar con ${HORAS_MINIMAS_CAMBIO} h o más de anticipación (faltan ${tiempoRestante})`);
             }
             const pagadoConSaldo = this.pagadoConSaldoAFavor(reserva);
             const alSaldo = destino === 'SALDO_A_FAVOR' ? reserva.pagado : pagadoConSaldo;
@@ -133,9 +149,9 @@
          */
         reagendar(codigo, nueva, ahora = new Date()) {
             const reserva = this.validarModificable(codigo, ahora);
-            const { puedeReagendar, horasRestantes } = this.politica(reserva, ahora);
+            const { puedeReagendar, tiempoRestante } = this.politica(reserva, ahora);
             if (!puedeReagendar) {
-                throw new Error(`Solo se puede reagendar con ${HORAS_MINIMAS_CAMBIO} h o más de anticipación (faltan ${horasRestantes} h)`);
+                throw new Error(`Solo se puede reagendar con ${HORAS_MINIMAS_CAMBIO} h o más de anticipación (faltan ${tiempoRestante})`);
             }
             const canchaId = Number(nueva.canchaId || reserva.canchaId);
             const hora = Number(nueva.hora);
@@ -210,6 +226,7 @@
     }
 
     GestionReservaController.HORAS_MINIMAS_CAMBIO = HORAS_MINIMAS_CAMBIO;
+    GestionReservaController.textoTiempo = textoTiempo;
     // Alias conservados por compatibilidad con versiones anteriores
     GestionReservaController.HORAS_MINIMAS_DEVOLUCION = HORAS_MINIMAS_CAMBIO;
     GestionReservaController.HORAS_MINIMAS_REAGENDAR = HORAS_MINIMAS_CAMBIO;
