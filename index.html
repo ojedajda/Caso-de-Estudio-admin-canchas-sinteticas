@@ -30,8 +30,11 @@
             <header class="barra">
                 <div class="barra-estado">Agenda sincronizada en tiempo real</div>
                 <div class="acciones-globales">
-                    <button class="btn" id="btn-demo" type="button">Cargar datos de demostración</button>
-                    <button class="btn" id="btn-reiniciar" type="button">Reiniciar datos</button>
+                    <span id="acciones-admin" hidden>
+                        <button class="btn" id="btn-demo" type="button">Cargar datos de demostración</button>
+                        <button class="btn" id="btn-reiniciar" type="button">Reiniciar datos</button>
+                    </span>
+                    <span class="sesion" id="sesion"></span>
                 </div>
             </header>
             <main class="principal" id="principal"></main>
@@ -40,6 +43,7 @@
     <div id="toast" aria-live="polite"></div>
 
     <script src="src/utils/Fechas.js"></script>
+    <script src="src/utils/Hash.js"></script>
     <script src="src/models/Cancha.js"></script>
     <script src="src/models/Reserva.js"></script>
     <script src="src/models/Cliente.js"></script>
@@ -48,6 +52,7 @@
     <script src="src/models/Promocion.js"></script>
     <script src="src/models/Bloqueo.js"></script>
     <script src="src/models/Resena.js"></script>
+    <script src="src/models/Usuario.js"></script>
     <script src="src/dao/Almacen.js"></script>
     <script src="src/dao/RepositorioBase.js"></script>
     <script src="src/dao/CanchaDAO.js"></script>
@@ -58,6 +63,7 @@
     <script src="src/dao/PromocionDAO.js"></script>
     <script src="src/dao/BloqueoDAO.js"></script>
     <script src="src/dao/ResenaDAO.js"></script>
+    <script src="src/dao/UsuarioDAO.js"></script>
     <script src="src/controllers/CanchaController.js"></script>
     <script src="src/controllers/DisponibilidadController.js"></script>
     <script src="src/controllers/ReservaController.js"></script>
@@ -70,6 +76,7 @@
     <script src="src/controllers/BloqueoController.js"></script>
     <script src="src/controllers/PromocionController.js"></script>
     <script src="src/controllers/ResenaController.js"></script>
+    <script src="src/controllers/AuthController.js"></script>
     <script src="src/Sistema.js"></script>
     <script src="src/views/web/vistaDisponibilidad.js"></script>
     <script src="src/views/web/vistaReservar.js"></script>
@@ -83,6 +90,7 @@
     <script src="src/views/web/vistaBloqueos.js"></script>
     <script src="src/views/web/vistaReportes.js"></script>
     <script src="src/views/web/vistaNotificaciones.js"></script>
+    <script src="src/views/web/vistaLogin.js"></script>
     <script src="src/views/web/app.js"></script>
 </body>
 </html>
