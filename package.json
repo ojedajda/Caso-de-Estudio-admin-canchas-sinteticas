@@ -1,0 +1,10 @@
+{
+  "name": "canchago",
+  "version": "0.1.0",
+  "description": "CanchaGO - Gestión de turnos y control de acceso en canchas sintéticas (prototipo en 3 capas)",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "license": "ISC"
+}
