@@ -92,30 +92,87 @@
 
         iniciar() {
             this.almacen = new CG.Almacen('canchago');
-            this.sistema = CG.crearSistema(this.almacen);
+            this.sistema = this.crearSistemaConSesion();
             CG.vistas.sort((a, b) => a.orden - b.orden);
-            this.pintarMenu();
+            document.getElementById('menu').addEventListener('click', (e) => {
+                const boton = e.target.closest('[data-vista]');
+                if (boton) {
+                    this.ir(boton.dataset.vista);
+                }
+            });
             document.getElementById('btn-demo').addEventListener('click', () => this.cargarDemo());
             document.getElementById('btn-reiniciar').addEventListener('click', () => this.reiniciar());
+            document.getElementById('sesion').addEventListener('click', (e) => {
+                const boton = e.target.closest('[data-sesion]');
+                if (boton) {
+                    boton.dataset.sesion === 'salir' ? this.cerrarSesion() : this.ir('login');
+                }
+            });
             global.addEventListener('hashchange', () => this.render());
             this.render();
         },
 
+        /** Crea el sistema y le conecta la sesión guardada en esta pestaña (se borra al cerrarla) */
+        crearSistemaConSesion() {
+            const sistema = CG.crearSistema(this.almacen);
+            const LLAVE = 'canchago:sesion';
+            sistema.auth.usarAlmacenSesion({
+                leer() {
+                    try {
+                        return JSON.parse(global.sessionStorage.getItem(LLAVE));
+                    } catch (error) {
+                        return null;
+                    }
+                },
+                guardar(estado) {
+                    try {
+                        global.sessionStorage.setItem(LLAVE, JSON.stringify(estado));
+                    } catch (error) {
+                        // Sin sessionStorage la sesión dura solo mientras la página siga abierta
+                    }
+                }
+            });
+            return sistema;
+        },
+
+        /** Menú lateral: solo los grupos que el rol actual puede usar */
         pintarMenu() {
-            const menu = document.getElementById('menu');
-            menu.innerHTML = GRUPOS.map((grupo) => {
+            const auth = this.sistema.auth;
+            document.getElementById('menu').innerHTML = GRUPOS.filter((grupo) => auth.puedeVerGrupo(grupo)).map((grupo) => {
                 const vistas = CG.vistas.filter((v) => v.grupo === grupo);
                 if (!vistas.length) {
                     return '';
                 }
                 return `<h4>${grupo}</h4>${vistas.map((v) => `<button data-vista="${v.id}">${UI.esc(v.titulo)}<span class="etiqueta-hu">${v.hu}</span></button>`).join('')}`;
             }).join('');
-            menu.addEventListener('click', (e) => {
-                const boton = e.target.closest('[data-vista]');
-                if (boton) {
-                    this.ir(boton.dataset.vista);
-                }
-            });
+        },
+
+        /** Parte derecha de la barra: quién está conectado y las acciones solo para administración */
+        pintarSesion() {
+            const auth = this.sistema.auth;
+            const sesion = auth.sesionActual();
+            document.getElementById('sesion').innerHTML = sesion
+                ? `<span class="sesion-nombre">${UI.esc(sesion.nombre)}</span>
+                   <button class="btn btn-chico" type="button" data-sesion="salir">Cerrar sesión</button>`
+                : '<button class="btn btn-primario btn-chico" type="button" data-sesion="entrar">Iniciar sesión</button>';
+            document.getElementById('acciones-admin').hidden = !auth.esAdministrador();
+        },
+
+        /** Tras iniciar sesión lleva a la sección que la persona quería abrir */
+        alIniciarSesion(sesion) {
+            UI.toast(`Bienvenido, ${sesion.nombre}`);
+            const pendiente = CG.vistas.find((v) => v.id === this.destinoPendiente);
+            // Solo vuelve a la sección pedida si este rol la puede usar; si no, a la disponibilidad
+            const destino = pendiente && this.sistema.auth.puedeVerGrupo(pendiente.grupo) ? pendiente.id : 'disponibilidad';
+            this.destinoPendiente = null;
+            this.ir(destino);
+        },
+
+        cerrarSesion() {
+            this.sistema.auth.cerrarSesion();
+            this.destinoPendiente = null;
+            UI.toast('Sesión cerrada');
+            this.ir('disponibilidad');
         },
 
         /** Navega a una vista, opcionalmente con parámetros (ej: franja elegida en la disponibilidad) */
@@ -130,9 +187,17 @@
 
         render() {
             const id = global.location.hash.slice(1);
-            const vista = CG.vistas.find((v) => v.id === id) || CG.vistas[0];
-            const params = this.params;
+            let vista = CG.vistas.find((v) => v.id === id) || CG.vistas[0];
+            let params = this.params;
             this.params = {};
+            // Control de acceso: aunque se escriba la dirección a mano, sin permiso solo se ve el inicio de sesión
+            if (GRUPOS.includes(vista.grupo) && !this.sistema.auth.puedeVerGrupo(vista.grupo)) {
+                this.destinoPendiente = vista.id;
+                params = { requerido: vista.grupo };
+                vista = CG.vistas.find((v) => v.id === 'login');
+            }
+            this.pintarMenu();
+            this.pintarSesion();
             document.querySelectorAll('#menu [data-vista]').forEach((b) => b.classList.toggle('activo', b.dataset.vista === vista.id));
             const principal = document.getElementById('principal');
             principal.innerHTML = '';
@@ -141,8 +206,12 @@
         },
 
         reiniciar() {
+            if (!this.sistema.auth.esAdministrador()) {
+                UI.toast('Solo el administrador puede reiniciar los datos.', 'error');
+                return;
+            }
             this.almacen.limpiar();
-            this.sistema = CG.crearSistema(this.almacen);
+            this.sistema = this.crearSistemaConSesion();
             this.render();
             UI.toast('Se borraron los datos. El sistema quedó como recién instalado.');
         },
@@ -151,6 +220,10 @@
         cargarDemo() {
             const s = this.sistema;
             const F = CG.Fechas;
+            if (!s.auth.esAdministrador()) {
+                UI.toast('Solo el administrador puede cargar los datos de demostración.', 'error');
+                return;
+            }
             if (s.daos.reservaDAO && s.daos.reservaDAO.obtenerTodas().length) {
                 UI.toast('Ya hay reservas registradas. Usa "Reiniciar datos" antes de cargar la demostración.', 'error');
                 return;
